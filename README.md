@@ -1,8 +1,15 @@
 # untitled php project
 
 ## Getting started
-To start this project, first open terminal and navigate to the project directory.
 
-Enter `php -S 127.0.0.1:8000` to start a server running at localhost:8000.
+### Step One: Install Composer
+[Go here](https://getcomposer.org/download/) and install composer locally on your machine.
 
-Navigate to localhost:8000 in your web browser to view the project.
+### Step Two: Install the Project
+Open terminal and navigate to the project directory.
+
+Copy `composer install` into terminal to install the dependencies.
+
+### Step Three: Run the Project
+
+Use XAMPP or your preferred equivalent to run the project.

@@ -1,4 +1,11 @@
 <?php
+  require __DIR__ . '/vendor/autoload.php';
+
+  // Looing for .env at the root directory
+  $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+  $dotenv->load();
+  $userName = $_ENV['USERNAME'];
+  $password = $_ENV['PASSWORD'];
 
 // Start a session to store form data for success/failure pages
 session_start();
@@ -30,4 +37,3 @@ if (mail($to, $subject, $message, $headers)) {
   error_log("Email sending failed: To: $to, Subject: $subject");
   header('Location: /failure.php');
 }
-?>
