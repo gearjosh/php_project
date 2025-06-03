@@ -4,67 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "316199f5525cf5a609ceb4d9d1f432cf",
+    "content-hash": "108be68e4e2b97fed51d36a10eed0849",
     "packages": [
-        {
-            "name": "ezmail/ezmail",
-            "version": "v1.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/JerryUrena/EZMAIL.git",
-                "reference": "ef7a651d529b8c99efb579f9ca108eeb3bc010e5"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/JerryUrena/EZMAIL/zipball/ef7a651d529b8c99efb579f9ca108eeb3bc010e5",
-                "reference": "ef7a651d529b8c99efb579f9ca108eeb3bc010e5",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.4.0"
-            },
-            "require-dev": {
-                "php": ">=8.1.0",
-                "phpunit/phpunit": "^9.5"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "EZMAIL\\": "EZMAIL/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Jerry Urena",
-                    "email": "jerryurenaa@gmail.com",
-                    "homepage": "https://jerryurenaa.com",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Ivan Kara",
-                    "homepage": "https://github.com/realivanjx",
-                    "role": "Developer"
-                }
-            ],
-            "description": "A lightweight package created with PHP using the official MIME documentation to send emails using the latest SMTP configuration",
-            "homepage": "https://nerdtrix.com",
-            "keywords": [
-                "EZMAIL",
-                "PHP SMTP",
-                "nerdtrix",
-                "php",
-                "smtp"
-            ],
-            "support": {
-                "issues": "https://github.com/JerryUrena/EZMAIL/issues",
-                "source": "https://github.com/JerryUrena/EZMAIL/tree/v1.2"
-            },
-            "time": "2022-05-20T15:02:03+00:00"
-        },
         {
             "name": "graham-campbell/result-type",
             "version": "v1.1.3",
