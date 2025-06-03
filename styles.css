@@ -1,1 +1,19 @@
+/* Base styles to complement Tailwind (e.g., custom fonts or overrides) */
+body {
+  font-family: 'Arial', sans-serif;
+  /* Clean, default font */
+  line-height: 1.6;
+}
 
+/* Custom overrides for Tailwind if needed (e.g., for specific elements) */
+.custom-form-label {
+  font-weight: bold;
+  color: #333;
+  /* Dark text for labels */
+}
+
+/* Add subtle animations or extras not in Tailwind CDN */
+button:hover {
+  transition: background-color 0.3s ease;
+  /* Smooth hover effect */
+}

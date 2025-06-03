@@ -1,41 +1,33 @@
 <?php
-if(isset($_POST['submit'])) {
-  $to = "comedianseanconnery@gmail.com";
-  $from = $_POST['email'];
-  $name = $_POST['name'];
-  $subject = $_POST['subject'];
-  $message = $_POST['message'];
-  $headers = "From: " . $name . " at " . $email;
 
-  if (mail($to, $subject, $message, $headers)) {
-    $g2k = "Mail Sent";
-  } else {
-    $g2k = "Failed";
-  }
+// Start a session to store form data for success/failure pages
+session_start();
+
+$to = "other.josh.gearheart+php@gmail.com";
+$from = $_POST['email'];
+$name = $_POST['name'];
+$subject = $_POST['subject'];
+$message = $_POST['message'];
+
+// Fix: Define headers properly (uncommented and formatted correctly for mail() compatibility)
+$headers = "From: $name <$from>\r\n";
+$headers .= "Reply-To: $from\r\n";
+$headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+
+// Store form data in session for use in success.php or failure.php
+$_SESSION['email_data'] = [
+  'name' => $name,
+  'email' => $from,
+  'subject' => $subject,
+  'message' => $message
+];
+
+// Attempt to send the email and log errors for debugging
+if (mail($to, $subject, $message, $headers)) {
+  header('Location: /success.php');
+} else {
+  // Optional: Log the error for debugging (check your server's error log)
+  error_log("Email sending failed: To: $to, Subject: $subject");
+  header('Location: /failure.php');
 }
 ?>
-
-<!DOCTYPE html>
-<html>
-  
-<head>
-  <meta charset="utf-8">
-  <link href="img/favicon.ico" rel="shortcut icon" type="img/jpeg">
-  <link href="reset.css" rel="stylesheet" type="text/css" media="all">
-  <!-- <link rel="stylesheet" href="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.10/themes/redmond/jquery-ui.css" /> -->
-  <link href="styles.css" rel="stylesheet" type="text/css" media="all">
-  <title></title>
-</head>
-
-<body>
-  <?php
-    echo "<h2>$g2k</h2>"
-  ?>
-  <a href="verify.php">Send another email.</a>
-
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-  <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/jquery-ui.min.js"></script> -->
-  <script type="text/javascript" src="script.js"></script>
-</body>
-  
-</html>
