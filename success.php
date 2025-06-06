@@ -11,18 +11,7 @@
 
 <body class="bg-gray-100 min-h-screen flex flex-col">
   <!-- Header Bar -->
-  <header class="bg-blue-600 text-white p-4 shadow-md">
-    <div class="container mx-auto flex justify-between items-center">
-      <div class="text-xl font-bold">PHP Email Project</div>
-      <nav>
-        <ul class="flex space-x-6">
-          <li><a href="home.php" class="hover:underline">Home</a></li>
-          <li><a href="send_email.php" class="hover:underline">Send an Email</a></li>
-          <li><a href="login.php" class="hover:underline">Login/Logout</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
+  <?php include 'header.php'; ?>
 
   <div class="flex-grow flex items-center justify-center p-6">
     <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md text-center">
@@ -31,7 +20,7 @@
       </svg>
       <h1 class="text-2xl font-bold text-gray-800 mb-4">Email Sent Successfully!</h1>
       <p class="text-gray-600 mb-6">Your message has been sent. Thank you for using our service.</p>
-      <a href="index.php" class="bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600 inline-block">Return Home</a>
+      <a href="home.php" class="bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600 inline-block">Return Home</a>
     </div>
   </div>
 </body>

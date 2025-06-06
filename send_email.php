@@ -11,23 +11,12 @@
 
 <body class="bg-gray-100 min-h-screen flex flex-col">
   <!-- Header Bar -->
-  <header class="bg-blue-600 text-white p-4 shadow-md">
-    <div class="container mx-auto flex justify-between items-center">
-      <div class="text-xl font-bold">pmail</div>
-      <nav>
-        <ul class="flex space-x-6">
-          <li><a href="home.php" class="hover:underline">Home</a></li>
-          <li><a href="send_email.php" class="hover:underline">Send an Email</a></li>
-          <li><a href="login.php" class="hover:underline">Login/Logout</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
+  <?php include 'header.php'; ?>
 
   <div class="flex-grow flex items-center justify-center p-6">
     <?php
     session_start(); // Start session to access stored data for repopulation
-    $email_data = $_SESSION['email_data'] ?? []; // Retrieve or default to empty
+    $email_data = []; // Retrieve or default to empty
     ?>
 
     <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
