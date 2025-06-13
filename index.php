@@ -6,7 +6,7 @@
   <link href="reset.css" rel="stylesheet" type="text/css" media="all">
   <link href="styles.css" rel="stylesheet" type="text/css" media="all">
   <script src="https://cdn.tailwindcss.com"></script>
-  <title>pmail - Home</title>
+  <title>pmail - Login</title>
 </head>
 
 
@@ -14,42 +14,75 @@
   <?php 
   include 'header.php';
   require_once 'session_utils.php';
+  require_once 'db_config.php';
   
   start_secure_session();
-  $is_logged_in = is_logged_in();
+  
+  // Check if user is already logged in
+  if (is_logged_in()) {
+    header("Location: home.php");
+    exit;
+  }
+  
+  $error = '';
+  
+  // Process login form
+  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'] ?? '';
+    $password = $_POST['password'] ?? '';
+    
+    if (empty($username) || empty($password)) {
+      $error = "Username and password are required";
+    } else {
+      try {
+        $pdo = getDBConnection();
+        $stmt = $pdo->prepare("SELECT id, username, password, name FROM users WHERE username = :username");
+        $stmt->execute(['username' => $username]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($user && password_verify($password, $user['password'])) {
+          // Login successful
+          $_SESSION['user_id'] = $user['id'];
+          $_SESSION['username'] = $user['username'];
+          $_SESSION['user_name'] = $user['name'];
+          
+          header("Location: home.php");
+          exit;
+        } else {
+          $error = "Invalid username or password";
+        }
+      } catch (PDOException $e) {
+        $error = "Database error: " . $e->getMessage();
+      }
+    }
+  }
   ?>
 
 
   <div class="flex-grow flex items-center justify-center p-6">
-    <?php if ($is_logged_in): ?>
-      <form action="home.php" method="post" class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-        <label for="name" class="block text-gray-700 mb-2 custom-form-label">Your name:</label>
-        <input name="name" id="name" type="text" required class="w-full p-2 border border-gray-300 rounded-md mb-4" value="<?php echo htmlspecialchars($_SESSION['user_name'] ?? ''); ?>">
-
-
-        <label for="age" class="block text-gray-700 mb-2 custom-form-label">Your age:</label>
-        <input name="age" id="age" type="number" required class="w-full p-2 border border-gray-300 rounded-md mb-4">
-        
-        <!-- CAPTCHA-like verification -->
-        <div class="mb-4">
-          <label class="block text-gray-700 mb-2 custom-form-label">Verification:</label>
-          <div class="bg-gray-100 p-3 rounded-md mb-2">
-            <p>What is 2 + 3? (Enter the number)</p>
-          </div>
-          <input name="captcha" type="text" required class="w-full p-2 border border-gray-300 rounded-md">
+    <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
+      <h2 class="text-xl font-bold mb-4">Login to pmail</h2>
+      
+      <?php if (!empty($error)): ?>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <?php echo htmlspecialchars($error); ?>
         </div>
-
-
-        <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Submit</button>
+      <?php endif; ?>
+      
+      <form action="index.php" method="post" class="flex flex-col">
+        <label for="username" class="block text-gray-700 mb-2 custom-form-label">Username:</label>
+        <input name="username" id="username" type="text" required class="w-full p-2 border border-gray-300 rounded-md mb-4">
+        
+        <label for="password" class="block text-gray-700 mb-2 custom-form-label">Password:</label>
+        <input name="password" id="password" type="password" required class="w-full p-2 border border-gray-300 rounded-md mb-4">
+        
+        <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Login</button>
       </form>
-    <?php else: ?>
-      <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-        <h2 class="text-xl font-bold mb-4">Welcome to pmail</h2>
-        <p class="mb-4">You need to be logged in to access this feature.</p>
-        <a href="login.php" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 inline-block">Login</a>
-        <p class="mt-4">Don't have an account? <a href="signup.php" class="text-blue-500 hover:underline">Sign up</a></p>
+      
+      <div class="mt-4 text-center">
+        <p>Don't have an account? <a href="signup.php" class="text-blue-500 hover:underline">Sign up</a></p>
       </div>
-    <?php endif; ?>
+    </div>
   </div>
 
 
