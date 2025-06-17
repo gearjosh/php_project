@@ -4,5 +4,8 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     name VARCHAR(100) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    registered BOOLEAN DEFAULT false,
+    avatar TEXT DEFAULT 'default_smiley.png',
+    tagline TEXT DEFAULT 'Wow!'
 );

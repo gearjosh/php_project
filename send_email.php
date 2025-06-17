@@ -15,6 +15,7 @@
   <?php 
   include 'header.php';
   require_once 'session_utils.php';
+  require_once 'db_config.php';
   
   // Require login for this page
   require_login();
@@ -22,14 +23,40 @@
   // Get user data from session
   $user_name = $_SESSION['user_name'] ?? '';
   $email_data = $_SESSION['email_data'] ?? [];
+  
+  // Get recipient email if user was selected
+  $to_address = '';
+  $recipient_name = '';
+  if (isset($_GET['to_user_id'])) {
+    try {
+      $pdo = getDBConnection();
+      $stmt = $pdo->prepare("SELECT email, name FROM users WHERE id = ? AND registered = true");
+      $stmt->execute([$_GET['to_user_id']]);
+      $recipient = $stmt->fetch(PDO::FETCH_ASSOC);
+      if ($recipient) {
+        $to_address = $recipient['email'];
+        $recipient_name = $recipient['name'];
+      }
+    } catch (PDOException $e) {
+      $error = "Database error: " . $e->getMessage();
+    }
+  }
   ?>
 
 
   <div class="flex-grow flex items-center justify-center p-6">
     <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-      <h2 class="text-xl font-bold mb-4">Send an email to someone</h2>
+      <h2 class="text-xl font-bold mb-4">Send an email<?php echo $recipient_name ? ' to ' . htmlspecialchars($recipient_name) : ''; ?></h2>
+      
+      <?php if (isset($error)): ?>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <?php echo htmlspecialchars($error); ?>
+        </div>
+      <?php endif; ?>
+      
       <form action="email.php" method="post" class="flex flex-col">
         <input type="hidden" name="name" value="<?php echo htmlspecialchars($user_name); ?>">
+        <input type="hidden" name="to_address" value="<?php echo htmlspecialchars($to_address); ?>">
 
 
         <label for="email" class="block text-gray-700 mb-2 custom-form-label">Your email address:</label>

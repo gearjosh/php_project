@@ -19,10 +19,22 @@
   // Require login for this page
   require_login();
   
+  // Get current user's registration status
+  $current_user_registered = false;
+  try {
+    $pdo = getDBConnection();
+    $stmt = $pdo->prepare("SELECT registered FROM users WHERE id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
+    $current_user_registered = $user_data['registered'] ?? false;
+  } catch (PDOException $e) {
+    $error = "Database error: " . $e->getMessage();
+  }
+  
   // Get all registered users
   try {
     $pdo = getDBConnection();
-    $stmt = $pdo->prepare("SELECT name, avatar FROM users WHERE registered = true ORDER BY name");
+    $stmt = $pdo->prepare("SELECT id, name, email, avatar FROM users WHERE registered = true ORDER BY name");
     $stmt->execute();
     $registered_users = $stmt->fetchAll(PDO::FETCH_ASSOC);
   } catch (PDOException $e) {
@@ -47,25 +59,28 @@
       <?php else: ?>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <?php foreach ($registered_users as $user): ?>
-            <div class="bg-gray-50 p-4 rounded-lg border">
-              <div class="text-center">
-                <?php if ($user['avatar'] && file_exists($user['avatar'])): ?>
-                  <img src="<?php echo htmlspecialchars($user['avatar']); ?>" alt="Avatar" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover">
-                <?php else: ?>
-                  <div class="w-16 h-16 rounded-full mx-auto mb-2 bg-yellow-200 flex items-center justify-center text-2xl">
-                    😊
-                  </div>
-                <?php endif; ?>
-                <h3 class="font-semibold text-lg"><?php echo htmlspecialchars($user['name']); ?></h3>
+            <a href="send_email.php?to_user_id=<?php echo $user['id']; ?>" class="block">
+              <div class="bg-gray-50 p-4 rounded-lg border hover:bg-gray-100 transition-colors cursor-pointer">
+                <div class="text-center">
+                  <?php if ($user['avatar'] && file_exists($user['avatar'])): ?>
+                    <img src="<?php echo htmlspecialchars($user['avatar']); ?>" alt="Avatar" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover">
+                  <?php else: ?>
+                    <div class="w-16 h-16 rounded-full mx-auto mb-2 bg-yellow-200 flex items-center justify-center text-2xl">
+                      😊
+                    </div>
+                  <?php endif; ?>
+                  <h3 class="font-semibold text-lg"><?php echo htmlspecialchars($user['name']); ?></h3>
+                </div>
               </div>
-            </div>
+            </a>
           <?php endforeach; ?>
         </div>
       <?php endif; ?>
       
       <div class="mt-6 text-center">
-        <a href="register.php" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 inline-block mr-2">Register for Emails</a>
-        <a href="send_email.php" class="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 inline-block">Send an Email</a>
+        <?php if (!$current_user_registered): ?>
+          <a href="register.php" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 inline-block">Register for Emails</a>
+        <?php endif; ?>
       </div>
     </div>
   </div>

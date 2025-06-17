@@ -61,10 +61,10 @@ PASSWORD=your_email_password
 5. Configure PHP to use Mailhog for email testing:
 - Find the correct `php.ini` file: Run `php --ini` to locate it (e.g., `/usr/local/etc/php/8.2/php.ini` or Valet's config).
 - Edit `php.ini` (use `sudo` if needed) and add or update:
-  ```
-  sendmail_path = /usr/local/bin/mailhog sendmail -t
-  ```
-  - This routes PHP's `mail()` function to Mailhog. The `-t` flag is crucial for reading email recipients correctly.
+```
+sendmail_path = /usr/local/bin/mailhog sendmail -t
+```
+- This routes PHP's `mail()` function to Mailhog. The `-t` flag is crucial for reading email recipients correctly.
 - Save and restart Valet: `valet restart`.
 6. (Optional) For database integration (e.g., PostgreSQL), see the "Database Integration" section below.
 
@@ -89,8 +89,17 @@ PASSWORD=your_email_password
 ## Database Integration (Optional)
 To add a database like PostgreSQL for storing data (e.g., user registrations):
 1. Install PostgreSQL: `brew install postgresql` and start it: `brew services start postgresql`.
-2. Create a database and tables via `psql` (see project documentation or external guides).
-3. Use PHP's PDO in your scripts to connect and query (example in project notes).
+2. Create a database: Connect to PostgreSQL with `psql postgres`, then run `CREATE DATABASE pmail;`.
+3. Create the users table: Run the SQL in `schema.sql` against your database, e.g., `psql pmail -f schema.sql`. This will create the `users` table with the correct schema, including columns for user details, registration status, avatars, and taglines.
+4. Configure database connection: Add database credentials to your `.env` file (e.g., by copying `.env.example` if available and editing it) with entries like:
+```
+DB_HOST=localhost
+DB_NAME=pmail
+POSTGRES_USER=your_postgres_username
+POSTGRES_PW=your_postgres_password
+```
+- The `db_config.php` file uses these environment variables to establish a PDO connection to the database.
+5. Use PHP's PDO in your scripts to connect and query the database (as shown in project files like `home.php`).
 
 
 ## Troubleshooting
@@ -98,7 +107,7 @@ To add a database like PostgreSQL for storing data (e.g., user registrations):
 - **Valet Issues**: Run `valet restart` or `valet diagnose`. Check for port conflicts or reinstall PHP.
 - **Permission Errors**: Use `sudo` for file edits or check ownership (`chown -R youruser:staff .` in the project folder).
 - **General Errors**: Enable PHP debugging by adding `error_reporting(E_ALL); ini_set('display_errors', 1);` at the top of PHP files temporarily. Review server logs via Valet or your terminal.
-- **Database Problems**: Ensure Postgres extensions are enabled in PHP and check connection credentials.
+- **Database Problems**: Ensure Postgres extensions are enabled in PHP, verify the `schema.sql` file was applied correctly, and check connection credentials in `.env`. Test the connection in `db_config.php`.
 
 
 For more help, consult official docs for Valet, Mailhog, or PostgreSQL. If issues persist, share error messages from logs.
