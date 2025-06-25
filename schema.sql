@@ -9,3 +9,21 @@ CREATE TABLE IF NOT EXISTS users (
     avatar TEXT DEFAULT 'default_smiley.png',
     tagline TEXT DEFAULT 'Wow!'
 );
+
+
+CREATE TABLE IF NOT EXISTS messages (
+    id SERIAL PRIMARY KEY,
+    sender_id INTEGER NOT NULL,
+    recipient_id INTEGER NOT NULL,
+    to_email VARCHAR(100) NOT NULL,
+    from_email VARCHAR(100) NOT NULL,
+    subject VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (recipient_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+
+-- Create index for faster queries on sender and recipient
+CREATE INDEX IF NOT EXISTS idx_messages_sender ON messages(sender_id);
+CREATE INDEX IF NOT EXISTS idx_messages_recipient ON messages(recipient_id);

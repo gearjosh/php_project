@@ -41,25 +41,60 @@
     $registered_users = [];
     $error = "Database error: " . $e->getMessage();
   }
+  
+  // Get users the current user has sent emails to
+  try {
+    $pdo = getDBConnection();
+    $stmt = $pdo->prepare("
+      SELECT DISTINCT u.id, u.name, u.email, u.avatar 
+      FROM users u
+      INNER JOIN messages m ON u.id = m.recipient_id
+      WHERE m.sender_id = ? 
+      ORDER BY u.name
+    ");
+    $stmt->execute([$_SESSION['user_id']]);
+    $sent_to_users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  } catch (PDOException $e) {
+    $sent_to_users = [];
+    $error = "Database error: " . $e->getMessage();
+  }
+  
+  // Get users who have sent emails to the current user
+  try {
+    $pdo = getDBConnection();
+    $stmt = $pdo->prepare("
+      SELECT DISTINCT u.id, u.name, u.email, u.avatar 
+      FROM users u
+      INNER JOIN messages m ON u.id = m.sender_id
+      WHERE m.recipient_id = ? 
+      ORDER BY u.name
+    ");
+    $stmt->execute([$_SESSION['user_id']]);
+    $received_from_users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  } catch (PDOException $e) {
+    $received_from_users = [];
+    $error = "Database error: " . $e->getMessage();
+  }
   ?>
 
 
-  <div class="flex-grow flex items-center justify-center p-6">
-    <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-4xl">
-      <h2 class="text-2xl font-bold mb-6 text-center">Registered pmail Users</h2>
-      
-      <?php if (isset($error)): ?>
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          <?php echo htmlspecialchars($error); ?>
-        </div>
-      <?php endif; ?>
+  <div class="flex-grow container mx-auto p-6">
+    <?php if (isset($error)): ?>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+        <?php echo htmlspecialchars($error); ?>
+      </div>
+    <?php endif; ?>
+    
+    <!-- Registered Users Section -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+      <h2 class="text-2xl font-bold mb-6 text-center">pmail Anybody!</h2>
       
       <?php if (empty($registered_users)): ?>
         <p class="text-center text-gray-600">No users have registered for emails yet.</p>
       <?php else: ?>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <?php foreach ($registered_users as $user): ?>
-            <a href="send_email.php?to_user_id=<?php echo $user['id']; ?>" class="block">
+            <a href="send_email.php?to_address=<?php echo $user['email']; ?>" class="block">
               <div class="bg-gray-50 p-4 rounded-lg border hover:bg-gray-100 transition-colors cursor-pointer">
                 <div class="text-center">
                   <?php if ($user['avatar'] && file_exists($user['avatar'])): ?>
@@ -82,6 +117,62 @@
           <a href="register.php" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 inline-block">Register for Emails</a>
         <?php endif; ?>
       </div>
+    </div>
+    
+    <!-- People You've pmailed Section -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+      <h2 class="text-2xl font-bold mb-6 text-center">People You've pmailed</h2>
+      
+      <?php if (empty($sent_to_users)): ?>
+        <p class="text-center text-gray-600">You haven't sent any pmails yet.</p>
+      <?php else: ?>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <?php foreach ($sent_to_users as $user): ?>
+            <a href="send_email.php?to_address=<?php echo $user['email']; ?>" class="block">
+              <div class="bg-gray-50 p-4 rounded-lg border hover:bg-gray-100 transition-colors cursor-pointer">
+                <div class="text-center">
+                  <?php if ($user['avatar'] && file_exists($user['avatar'])): ?>
+                    <img src="<?php echo htmlspecialchars($user['avatar']); ?>" alt="Avatar" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover">
+                  <?php else: ?>
+                    <div class="w-16 h-16 rounded-full mx-auto mb-2 bg-yellow-200 flex items-center justify-center text-2xl">
+                      😊
+                    </div>
+                  <?php endif; ?>
+                  <h3 class="font-semibold text-lg"><?php echo htmlspecialchars($user['name']); ?></h3>
+                </div>
+              </div>
+            </a>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
+    </div>
+    
+    <!-- People Who've pmailed You Section -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <h2 class="text-2xl font-bold mb-6 text-center">People Who've pmailed You</h2>
+      
+      <?php if (empty($received_from_users)): ?>
+        <p class="text-center text-gray-600">No one has sent you a pmail yet.</p>
+      <?php else: ?>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <?php foreach ($received_from_users as $user): ?>
+            <a href="send_email.php?to_address=<?php echo $user['email']; ?>" class="block">
+              <div class="bg-gray-50 p-4 rounded-lg border hover:bg-gray-100 transition-colors cursor-pointer">
+                <div class="text-center">
+                  <?php if ($user['avatar'] && file_exists($user['avatar'])): ?>
+                    <img src="<?php echo htmlspecialchars($user['avatar']); ?>" alt="Avatar" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover">
+                  <?php else: ?>
+                    <div class="w-16 h-16 rounded-full mx-auto mb-2 bg-yellow-200 flex items-center justify-center text-2xl">
+                      😊
+                    </div>
+                  <?php endif; ?>
+                  <h3 class="font-semibold text-lg"><?php echo htmlspecialchars($user['name']); ?></h3>
+                </div>
+              </div>
+            </a>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
     </div>
   </div>
 
