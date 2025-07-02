@@ -25,16 +25,15 @@
   $email_data = $_SESSION['email_data'] ?? [];
   
   // Get recipient email if user was selected
-  $to_address = '';
+  $to_address = $_GET['to_address'] ?? '';
   $recipient_name = '';
-  if (isset($_GET['to_user_id'])) {
+  if (isset($to_address)) {
     try {
       $pdo = getDBConnection();
-      $stmt = $pdo->prepare("SELECT email, name FROM users WHERE id = ? AND registered = true");
-      $stmt->execute([$_GET['to_user_id']]);
+      $stmt = $pdo->prepare("SELECT name FROM users WHERE email = ? AND registered = true");
+      $stmt->execute([$to_address]);
       $recipient = $stmt->fetch(PDO::FETCH_ASSOC);
       if ($recipient) {
-        $to_address = $recipient['email'];
         $recipient_name = $recipient['name'];
       }
     } catch (PDOException $e) {
@@ -46,7 +45,7 @@
 
   <div class="flex-grow flex items-center justify-center p-6">
     <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-      <h2 class="text-xl font-bold mb-4">Send an email<?php echo $recipient_name ? ' to ' . htmlspecialchars($recipient_name) : ''; ?></h2>
+      <h2 class="text-xl font-bold mb-4">Send an email<?php echo !empty($to_address) ? ' to ' . htmlspecialchars($recipient_name ?: $to_address) : ' to ???'; ?></h2>
       
       <?php if (isset($error)): ?>
         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">

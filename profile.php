@@ -132,7 +132,7 @@
 
   <div class="flex-grow flex items-center justify-center p-6">
     <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-      <h2 class="text-xl font-bold mb-4">Update your profile</h2>
+      <h2 class="text-xl font-bold mb-4">Update profile for <?php echo htmlspecialchars($user_data['username'] ?? ''); ?></h2>
       
       <?php if (!empty($error)): ?>
         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -147,7 +147,7 @@
       <?php endif; ?>
       
       <form action="profile.php" method="post" enctype="multipart/form-data" class="flex flex-col">
-        <label for="name" class="block text-gray-700 mb-2 custom-form-label">Full Name:</label>
+        <label for="name" class="block text-gray-700 mb-2 custom-form-label">Public Name:</label>
         <input name="name" id="name" type="text" class="w-full p-2 border border-gray-300 rounded-md mb-4" value="<?php echo htmlspecialchars($user_data['name'] ?? ''); ?>">
         
         <label for="email" class="block text-gray-700 mb-2 custom-form-label">Email Address:</label>

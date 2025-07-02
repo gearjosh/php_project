@@ -64,15 +64,16 @@ if (mail($to_email, $subject, $message, $headers)) {
     try {
       $pdo = getDBConnection();
       $stmt = $pdo->prepare("
-        INSERT INTO messages (sender_id, recipient_id, to_email, from_email, subject) 
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO messages (sender_id, recipient_id, to_email, from_email, subject, message) 
+        VALUES (?, ?, ?, ?, ?, ?)
       ");
       $stmt->execute([
         $_SESSION['user_id'],
         $to_user_id,
         $to_email,
         $from,
-        $subject
+        $subject,
+        $message
       ]);
     } catch (PDOException $e) {
       error_log("Failed to record message in database: " . $e->getMessage());

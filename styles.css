@@ -5,6 +5,7 @@ body {
   line-height: 1.6;
 }
 
+
 /* Custom overrides for Tailwind if needed (e.g., for specific elements) */
 .custom-form-label {
   font-weight: bold;
@@ -12,17 +13,20 @@ body {
   /* Dark text for labels */
 }
 
+
 /* Add subtle animations or extras not in Tailwind CDN */
 button:hover {
   transition: background-color 0.3s ease;
   /* Smooth hover effect */
 }
 
+
 /* Shimmer animation for pmail link */
 .shimmer-link {
   position: relative;
   overflow: hidden;
 }
+
 
 .shimmer-link:hover::before {
   content: '';
@@ -32,16 +36,20 @@ button:hover {
   width: 100%;
   height: 100%;
   background: linear-gradient(90deg,
-    transparent,
-    rgba(255, 0, 255, 0.4),
-    transparent);
+      transparent,
+      rgba(255, 255, 255, 0.8),
+      transparent);
   animation: shimmer 0.4s forwards;
+  z-index: 1;
+  mix-blend-mode: overlay;
 }
+
 
 @keyframes shimmer {
   0% {
     left: -100%;
   }
+
 
   100% {
     left: 100%;
