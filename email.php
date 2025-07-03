@@ -36,16 +36,25 @@ if (!empty($_POST['to_address'])) {
 }
 
 
+// Get recipient user ID if not already set
+if (!$to_user_id && !empty($to_email)) {
+    try {
+        $pdo = getDBConnection();
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? AND registered = true");
+        $stmt->execute([$to_email]);
+        $recipient = $stmt->fetch(PDO::FETCH_ASSOC);
+        $to_user_id = $recipient['id'] ?? null;
+    } catch (PDOException $e) {
+        error_log("Failed to get recipient user ID: " . $e->getMessage());
+    }
+}
+
+
 $from = $_POST['email'];
 $name = $_POST['name'];
 $subject = $_POST['subject'];
 $message = $_POST['message'];
-
-
-// Fix: Define headers properly (uncommented and formatted correctly for mail() compatibility)
-$headers = "From: $name <$from>\r\n";
-$headers .= "Reply-To: $from\r\n";
-$headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+$message_type = $_POST['message_type'] ?? 'email';
 
 
 // Store form data in session for use in success.php or failure.php
@@ -53,37 +62,82 @@ $_SESSION['email_data'] = [
   'name' => $name,
   'email' => $from,
   'subject' => $subject,
-  'message' => $message
+  'message' => $message,
+  'message_type' => $message_type
 ];
 
 
-// Attempt to send the email and log errors for debugging
-if (mail($to_email, $subject, $message, $headers)) {
-  // Record the message in the database if we have user IDs
-  if ($to_user_id && isset($_SESSION['user_id'])) {
-    try {
-      $pdo = getDBConnection();
-      $stmt = $pdo->prepare("
-        INSERT INTO messages (sender_id, recipient_id, to_email, from_email, subject, message) 
-        VALUES (?, ?, ?, ?, ?, ?)
-      ");
-      $stmt->execute([
-        $_SESSION['user_id'],
-        $to_user_id,
-        $to_email,
-        $from,
-        $subject,
-        $message
-      ]);
-    } catch (PDOException $e) {
-      error_log("Failed to record message in database: " . $e->getMessage());
+$success = false;
+
+
+if ($message_type === 'pmail') {
+    // Handle pmail (internal message only)
+    if ($to_user_id && isset($_SESSION['user_id'])) {
+        try {
+            $pdo = getDBConnection();
+            $stmt = $pdo->prepare("
+                INSERT INTO messages (sender_id, recipient_id, to_email, from_email, subject, message, is_email) 
+                VALUES (?, ?, ?, ?, ?, ?, false)
+            ");
+            $stmt->execute([
+                $_SESSION['user_id'],
+                $to_user_id,
+                $to_email,
+                $from,
+                $subject,
+                $message
+            ]);
+            $success = true;
+        } catch (PDOException $e) {
+            error_log("Failed to record pmail in database: " . $e->getMessage());
+            $success = false;
+        }
+    } else {
+        error_log("Cannot send pmail: missing user IDs");
+        $success = false;
     }
-  }
-  
-  header('Location: /success.php');
 } else {
-  // Optional: Log the error for debugging (check your server's error log)
-  error_log("Email sending failed: To: $to_email, Subject: $subject");
-  header('Location: /failure.php');
+    // Handle email sending
+    // Fix: Define headers properly (uncommented and formatted correctly for mail() compatibility)
+    $headers = "From: $name <$from>\r\n";
+    $headers .= "Reply-To: $from\r\n";
+    $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+
+
+    // Attempt to send the email and log errors for debugging
+    if (mail($to_email, $subject, $message, $headers)) {
+        // Record the message in the database if we have user IDs
+        if ($to_user_id && isset($_SESSION['user_id'])) {
+            try {
+                $pdo = getDBConnection();
+                $stmt = $pdo->prepare("
+                    INSERT INTO messages (sender_id, recipient_id, to_email, from_email, subject, message, is_email) 
+                    VALUES (?, ?, ?, ?, ?, ?, true)
+                ");
+                $stmt->execute([
+                    $_SESSION['user_id'],
+                    $to_user_id,
+                    $to_email,
+                    $from,
+                    $subject,
+                    $message
+                ]);
+            } catch (PDOException $e) {
+                error_log("Failed to record email in database: " . $e->getMessage());
+            }
+        }
+        $success = true;
+    } else {
+        // Optional: Log the error for debugging (check your server's error log)
+        error_log("Email sending failed: To: $to_email, Subject: $subject");
+        $success = false;
+    }
+}
+
+
+if ($success) {
+    header('Location: /success.php');
+} else {
+    header('Location: /failure.php');
 }
 ?>

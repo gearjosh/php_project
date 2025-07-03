@@ -58,6 +58,13 @@
         <input type="hidden" name="to_address" value="<?php echo htmlspecialchars($to_address); ?>">
 
 
+        <label for="message_type" class="block text-gray-700 mb-2 custom-form-label">Message Type:</label>
+        <select name="message_type" id="message_type" required class="w-full p-2 border border-gray-300 rounded-md mb-4">
+          <option value="email" <?php echo (($email_data['message_type'] ?? 'email') === 'email') ? 'selected' : ''; ?>>Email</option>
+          <option value="pmail" <?php echo (($email_data['message_type'] ?? '') === 'pmail') ? 'selected' : ''; ?>>pmail (Internal Message)</option>
+        </select>
+
+
         <label for="email" class="block text-gray-700 mb-2 custom-form-label">Your email address:</label>
         <input name="email" id="email" type="email" required class="w-full p-2 border border-gray-300 rounded-md mb-4" value="<?php echo htmlspecialchars($email_data['email'] ?? ''); ?>">
         

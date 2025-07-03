@@ -31,6 +31,23 @@
     $error = "Database error: " . $e->getMessage();
   }
   
+  // Get pmail inbox messages (non-email messages received by current user)
+  try {
+    $pdo = getDBConnection();
+    $stmt = $pdo->prepare("
+      SELECT m.id, m.subject, m.message, m.created_at, u.name as sender_name, u.email as sender_email
+      FROM messages m
+      INNER JOIN users u ON m.sender_id = u.id
+      WHERE m.recipient_id = ? AND (m.is_email = false OR m.is_email IS NULL)
+      ORDER BY m.created_at DESC
+    ");
+    $stmt->execute([$_SESSION['user_id']]);
+    $inbox_messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  } catch (PDOException $e) {
+    $inbox_messages = [];
+    $error = "Database error: " . $e->getMessage();
+  }
+  
   // Get all registered users
   try {
     $pdo = getDBConnection();
@@ -84,6 +101,34 @@
         <?php echo htmlspecialchars($error); ?>
       </div>
     <?php endif; ?>
+    
+    <!-- pmail Inbox Section -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+      <h2 class="text-2xl font-bold mb-6 text-center">pmail Inbox</h2>
+      
+      <?php if (empty($inbox_messages)): ?>
+        <p class="text-center text-gray-600">No pmails received yet.</p>
+      <?php else: ?>
+        <div class="space-y-4">
+          <?php foreach ($inbox_messages as $msg): ?>
+            <div class="bg-gray-50 p-4 rounded-lg border">
+              <div class="flex justify-between items-start mb-2">
+                <div class="flex-grow">
+                  <h3 class="font-semibold text-lg"><?php echo htmlspecialchars($msg['subject']); ?></h3>
+                  <p class="text-sm text-gray-600">From: <?php echo htmlspecialchars($msg['sender_name']); ?> (<?php echo htmlspecialchars($msg['sender_email']); ?>)</p>
+                </div>
+                <div class="text-sm text-gray-500">
+                  <?php echo date('M j, Y g:i A', strtotime($msg['created_at'])); ?>
+                </div>
+              </div>
+              <div class="text-gray-700">
+                <?php echo nl2br(htmlspecialchars($msg['message'])); ?>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
+    </div>
     
     <!-- Registered Users Section -->
     <div class="bg-white p-6 rounded-lg shadow-md mb-8">
