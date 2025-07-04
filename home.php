@@ -59,14 +59,14 @@
     $error = "Database error: " . $e->getMessage();
   }
   
-  // Get users the current user has sent emails to
+  // Get users the current user has sent pmails to (non-email messages only)
   try {
     $pdo = getDBConnection();
     $stmt = $pdo->prepare("
       SELECT DISTINCT u.id, u.name, u.email, u.avatar 
       FROM users u
       INNER JOIN messages m ON u.id = m.recipient_id
-      WHERE m.sender_id = ? 
+      WHERE m.sender_id = ? AND m.is_email = false
       ORDER BY u.name
     ");
     $stmt->execute([$_SESSION['user_id']]);
@@ -76,14 +76,14 @@
     $error = "Database error: " . $e->getMessage();
   }
   
-  // Get users who have sent emails to the current user
+  // Get users who have sent pmails to the current user (non-email messages only)
   try {
     $pdo = getDBConnection();
     $stmt = $pdo->prepare("
       SELECT DISTINCT u.id, u.name, u.email, u.avatar 
       FROM users u
       INNER JOIN messages m ON u.id = m.sender_id
-      WHERE m.recipient_id = ? 
+      WHERE m.recipient_id = ? AND m.is_email = false
       ORDER BY u.name
     ");
     $stmt->execute([$_SESSION['user_id']]);

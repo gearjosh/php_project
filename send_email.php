@@ -22,6 +22,7 @@
   
   // Get user data from session
   $user_name = $_SESSION['user_name'] ?? '';
+  $user_email = $_SESSION['user_email'] ?? '';
   $email_data = $_SESSION['email_data'] ?? [];
   
   // Get recipient email if user was selected
@@ -55,6 +56,7 @@
       
       <form action="email.php" method="post" class="flex flex-col">
         <input type="hidden" name="name" value="<?php echo htmlspecialchars($user_name); ?>">
+        <input type="hidden" name="email" value="<?php echo htmlspecialchars($user_email); ?>">
         <input type="hidden" name="to_address" value="<?php echo htmlspecialchars($to_address); ?>">
 
 
@@ -63,10 +65,6 @@
           <option value="email" <?php echo (($email_data['message_type'] ?? 'email') === 'email') ? 'selected' : ''; ?>>Email</option>
           <option value="pmail" <?php echo (($email_data['message_type'] ?? '') === 'pmail') ? 'selected' : ''; ?>>pmail (Internal Message)</option>
         </select>
-
-
-        <label for="email" class="block text-gray-700 mb-2 custom-form-label">Your email address:</label>
-        <input name="email" id="email" type="email" required class="w-full p-2 border border-gray-300 rounded-md mb-4" value="<?php echo htmlspecialchars($email_data['email'] ?? ''); ?>">
         
         <label for="subject" class="block text-gray-700 mb-2 custom-form-label">Your Subject:</label>
         <input name="subject" id="subject" type="text" required class="w-full p-2 border border-gray-300 rounded-md mb-4" value="<?php echo htmlspecialchars($email_data['subject'] ?? ''); ?>">
