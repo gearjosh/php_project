@@ -28,6 +28,8 @@
   // Get recipient email if user was selected
   $to_address = $_GET['to_address'] ?? '';
   $recipient_name = '';
+  $discover = isset($_GET['discover']) && $_GET['discover'] === 'true';
+
   if (isset($to_address)) {
     try {
       $pdo = getDBConnection();
@@ -57,6 +59,7 @@
       <form action="email.php" method="post" class="flex flex-col">
         <input type="hidden" name="name" value="<?php echo htmlspecialchars($user_name); ?>">
         <input type="hidden" name="email" value="<?php echo htmlspecialchars($user_email); ?>">
+        <input type="hidden" name="discover" value="<?php echo htmlspecialchars($discover); ?>">
         <input type="hidden" name="to_address" value="<?php echo htmlspecialchars($to_address); ?>">
 
 

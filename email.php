@@ -21,19 +21,43 @@ $to_email = '';
 
 if (!empty($_POST['to_address'])) {
     $to_email = $_POST['to_address'];
+} elseif ($_POST['discover']) {
+
+  // Get a random, registered user the current user has not interacted with
+  $pdo = getDBConnection();
+  $stmt = $pdo->prepare("
+    SELECT id, email FROM users 
+    WHERE registered = true 
+    AND id NOT IN (
+      SELECT DISTINCT user_id FROM (
+        SELECT recipient_id as user_id FROM messages WHERE sender_id = ? 
+        UNION 
+        SELECT sender_id as user_id FROM messages WHERE recipient_id = ?
+      ) as interactions
+    ) 
+    ORDER BY RANDOM() LIMIT 1
+  ");
+  $stmt->execute([$_SESSION['user_id'], $_SESSION['user_id']]);
+  $random_user = $stmt->fetch(PDO::FETCH_ASSOC);
+  $to_user_id = $random_user['id'] ?? null;
+  $to_email = $random_user['email'] ?? "other.josh.gearheart+php@gmail.com";
+
 } else {
-    // Default to a random registered user's email address
-    try {
-        $pdo = getDBConnection();
-        $stmt = $pdo->prepare("SELECT id, email FROM users WHERE registered = true ORDER BY RANDOM() LIMIT 1");
-        $stmt->execute();
-        $random_user = $stmt->fetch(PDO::FETCH_ASSOC);
-        $to_user_id = $random_user['id'] ?? null;
-        $to_email = $random_user['email'] ?? "other.josh.gearheart+php@gmail.com";
-    } catch (PDOException $e) {
-        $to_email = "other.josh.gearheart+php@gmail.com";
-    }
+
+  // Default to a random registered user's email address
+  try {
+    $pdo = getDBConnection();
+    $stmt = $pdo->prepare("SELECT id, email FROM users WHERE registered = true ORDER BY RANDOM() LIMIT 1");
+    $stmt->execute();
+    $random_user = $stmt->fetch(PDO::FETCH_ASSOC);
+    $to_user_id = $random_user['id'] ?? null;
+    $to_email = $random_user['email'] ?? "other.josh.gearheart+php@gmail.com";
+
+  } catch (PDOException $e) {
+    $to_email = "other.josh.gearheart+php@gmail.com";
+  }
 }
+
 
 
 // Get recipient user ID if not already set

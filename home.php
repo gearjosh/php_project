@@ -51,7 +51,7 @@
   // Get all registered users
   try {
     $pdo = getDBConnection();
-    $stmt = $pdo->prepare("SELECT id, name, email, avatar FROM users WHERE registered = true ORDER BY name");
+    $stmt = $pdo->prepare("SELECT id, name, email, avatar, tagline FROM users WHERE registered = true ORDER BY name");
     $stmt->execute();
     $registered_users = $stmt->fetchAll(PDO::FETCH_ASSOC);
   } catch (PDOException $e) {
@@ -63,7 +63,7 @@
   try {
     $pdo = getDBConnection();
     $stmt = $pdo->prepare("
-      SELECT DISTINCT u.id, u.name, u.email, u.avatar 
+      SELECT DISTINCT u.id, u.name, u.email, u.avatar, u.tagline
       FROM users u
       INNER JOIN messages m ON u.id = m.recipient_id
       WHERE m.sender_id = ? AND m.is_email = false
@@ -80,7 +80,7 @@
   try {
     $pdo = getDBConnection();
     $stmt = $pdo->prepare("
-      SELECT DISTINCT u.id, u.name, u.email, u.avatar 
+      SELECT DISTINCT u.id, u.name, u.email, u.avatar, u.tagline
       FROM users u
       INNER JOIN messages m ON u.id = m.sender_id
       WHERE m.recipient_id = ? AND m.is_email = false
@@ -149,7 +149,12 @@
                       😊
                     </div>
                   <?php endif; ?>
+
                   <h3 class="font-semibold text-lg"><?php echo htmlspecialchars($user['name']); ?></h3>
+                  <?php if (!empty($user['tagline'])): ?>
+                    <p class="text-sm text-gray-600"><?php echo htmlspecialchars($user['tagline']); ?></p>
+                  <?php endif; ?>
+
                 </div>
               </div>
             </a>
@@ -183,7 +188,12 @@
                       😊
                     </div>
                   <?php endif; ?>
+
                   <h3 class="font-semibold text-lg"><?php echo htmlspecialchars($user['name']); ?></h3>
+                  <?php if (!empty($user['tagline'])): ?>
+                    <p class="text-sm text-gray-600"><?php echo htmlspecialchars($user['tagline']); ?></p>
+                  <?php endif; ?>
+
                 </div>
               </div>
             </a>
@@ -211,7 +221,12 @@
                       😊
                     </div>
                   <?php endif; ?>
+
                   <h3 class="font-semibold text-lg"><?php echo htmlspecialchars($user['name']); ?></h3>
+                  <?php if (!empty($user['tagline'])): ?>
+                    <p class="text-sm text-gray-600"><?php echo htmlspecialchars($user['tagline']); ?></p>
+                  <?php endif; ?>
+
                 </div>
               </div>
             </a>

@@ -68,10 +68,10 @@
   $best_friend = $stmt->fetch(PDO::FETCH_ASSOC);
   
   // Total number of users to discover
-  $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE id != ?");
+  $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE id != ? AND registered = true");
   $stmt->execute([$_SESSION['user_id']]);
   $total_users = $stmt->fetchColumn();
-  $users_to_discover = $total_users - $unique_interactions;
+  $users_to_discover = $total_users - $unique_interactions > 0 ? $total_users - $unique_interactions : 0;
   
   // Process form submission
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -206,6 +206,11 @@
           </div>
           <div>
             <h1 class="text-3xl font-bold text-gray-800"><?php echo htmlspecialchars($user_data['username'] ?? ''); ?></h1>
+            
+            <?php if (!empty($user_data['name'])): ?>
+              <span class="text-lg text-gray-600">(<?php echo htmlspecialchars($user_data['name']); ?>)</span>
+            <?php endif; ?>
+
             <?php if (!empty($user_data['tagline'])): ?>
               <p class="text-lg text-gray-600 mt-2"><?php echo htmlspecialchars($user_data['tagline']); ?></p>
             <?php endif; ?>
@@ -261,7 +266,7 @@
             </div>
 
             <div>
-              <div class="font-semibold text-lg"><?php echo isset($best_friend['username']) ? htmlspecialchars($best_friend['username']) : 'Unknown error. Try again later.'; ?></div>
+              <div class="font-semibold text-lg"><?php echo isset($best_friend['name']) ? htmlspecialchars($best_friend['name']) : 'Unknown error. Try again later.'; ?></div>
               <?php if (!empty($best_friend['tagline'])): ?>
                 <div class="text-gray-600"><?php echo isset($best_friend['tagline']) ? htmlspecialchars($best_friend['tagline']) : 'Unknown error. Try again later.'; ?></div>
               <?php endif; ?>
@@ -280,7 +285,7 @@
         <h3 class="text-xl font-semibold mb-4 text-gray-700">Discover</h3>
         <div class="bg-indigo-50 p-4 rounded-lg text-center">
           <p class="text-gray-700 mb-4">You have <?php echo isset($users_to_discover) ? $users_to_discover : 'Unknown error. Try again later.'; ?> users still to interact with</p>
-          <a href="send_email.php" class="bg-indigo-500 text-white py-2 px-4 rounded-md hover:bg-indigo-600 inline-block">
+          <a href="send_email.php?discover=true" class="bg-indigo-500 text-white py-2 px-4 rounded-md hover:bg-indigo-600 inline-block">
             pmail someone new
           </a>
         </div>
